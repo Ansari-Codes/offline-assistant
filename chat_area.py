@@ -1,7 +1,6 @@
 from env import ui, app
 from UI import TextArea, Input, Button, RawRow, RawCol, Row, Col, Card, Label, Html, Notify
-from backend import read_chats, write_message, create_chat, rename_chat
-from markdown import markdown
+from backend import read_chats, write_message, rename_chat
 
 def message(msg, ai=False):
     """Render a single message bubble with copy button."""
@@ -129,15 +128,6 @@ def ChatArea(chat_id: str):
                             ">
                                 Start the conversation
                                 Ask anything, I’m ready to help you think, build, and explore.
-                            </div>
-
-                            <div style="
-                                margin-top:10px;
-                                font-size:14px;
-                                color:#22d3ee;
-                                opacity:0.9;
-                            ">
-                                Type below and press send
                             </div>
                         </div>
 

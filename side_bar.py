@@ -9,6 +9,10 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None):
     def open_chat(chat):
         if chat_opener: 
             chat_opener(chat['id'], dict(model=model, tokenizer=tokenizer), ListChats)
+    def create_chat():
+        if chat_creator: 
+            chat_creator(dict(model=model, tokenizer=tokenizer), ListChats)
+            ListChats()
     def ListChats(e=None):
         query = search.value.lower().strip() # type:ignore
         chats.clear()
@@ -27,7 +31,7 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None):
                 Label(env.LOGO + ' ' + env.NAME).classes("text-2xl font-bold w-full text-white")
             Button(
                 'New Chat',
-                on_click=chat_creator,
+                on_click=create_chat,
                 config={'icon':'add'}
             ).classes("w-full mb-2")
 
