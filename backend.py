@@ -1,0 +1,66 @@
+import json
+from datetime import datetime
+import uuid
+
+CHAT_FILE = "chats.json"
+
+def read_chats() -> dict:
+    try:
+        with open(CHAT_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        with open(CHAT_FILE, 'w', encoding='utf-8') as f:
+            json.dump({}, f)
+        return {}
+
+def create_chat(title: str = '') -> dict:
+    chats = read_chats()
+    now = datetime.now().isoformat()
+    chat_id = str(uuid.uuid4())
+    chats[chat_id] = {
+        'title': title or f"Chat-{chat_id[:8]}",
+        'created_at': now,
+        'last_update': now,
+        'chat': []
+    }
+    with open(CHAT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(chats, f, indent=2, ensure_ascii=False)
+    return {'id': chat_id, 'chat': chats[chat_id]}
+
+def write_message(chat_id, user_msg=None, assistant_msg=None):
+    chats = read_chats()
+    if chat_id not in chats:
+        raise ValueError(f"Chat ID {chat_id} does not exist")
+    now = datetime.now().isoformat()
+    if user_msg: chats[chat_id]['chat'].append({'USER': user_msg})
+    if assistant_msg: chats[chat_id]['chat'].append({'ASSISTANT': assistant_msg})
+    chats[chat_id]['last_update'] = now
+    with open(CHAT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(chats, f, indent=2, ensure_ascii=False)
+
+def filter_(q, item):
+    q = q.lower().strip()
+    title = item.get("title", "").lower()  # Default to an empty string if title is None
+    if not q:
+        return True
+    return q in title or title in q
+
+def all_chats(query: str = ''):
+    chats = read_chats()
+    return [{'id': chat_id, **{k:v for k,v in data.items() if k!='chat'}} for chat_id, data in chats.items() if filter_(query, data)]
+
+def get_messages(id):
+    chats = read_chats()
+    for c in chats.keys():
+        if c == id:
+            return chats[c].get("chat")
+    return []
+
+def rename_chat(chat_id: str, new_title: str):
+    chats = read_chats()
+    if chat_id not in chats:
+        raise ValueError(f"Chat ID {chat_id} does not exist")
+    chats[chat_id]['title'] = new_title
+    chats[chat_id]['last_update'] = datetime.now().isoformat()
+    with open(CHAT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(chats, f, indent=2, ensure_ascii=False)

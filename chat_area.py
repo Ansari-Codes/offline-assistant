@@ -1,0 +1,208 @@
+from env import ui, app
+from UI import TextArea, Input, Button, RawRow, RawCol, Row, Col, Card, Label, Html, Notify
+from backend import read_chats, write_message, create_chat, rename_chat
+from markdown import markdown
+
+def message(msg, ai=False):
+    """Render a single message bubble with copy button."""
+    with Row().classes("w-full") as c:
+        with Col().classes(
+            f"{'ml' if not ai else 'mr'}-auto max-w-[70%]"
+        ):
+            with Card().classes(
+                f"""
+                relative group
+                bg-{'user' if not ai else 'ai'}-msg
+                text-{'user' if not ai else 'ai'}-msg-text
+                rounded-lg border-2
+                border-[var(--q-{'user' if not ai else 'ai'}-border)]
+                p-2
+                """
+            ):
+
+                Button(
+                    config={'icon': 'content_copy'},
+                    on_click=lambda m=msg: [ui.clipboard.write(m), Notify("Content Copied!", type='positive')]
+                ).classes(
+                    """
+                    absolute top-1 right-1
+                    opacity-0 group-hover:opacity-100
+                    transition-opacity duration-200
+                    text-xs
+                    """
+                )
+
+                m = ui.markdown(
+                    msg
+                    .replace("\\[", "$$").replace("\\]", "$$")
+                    .replace("\\(", "$").replace("\\)", "$")
+                    # .replace("\n\n", "<br>")
+                    # .replace("\n", "<br>"),
+                    ,
+                    extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
+                ).classes("p-0 m-0")
+
+    return c, m
+
+def TitleChat(chat_id: str):
+    chats = read_chats()
+    title = chats.get(chat_id, {}).get("title", "New Chat")
+    editing = {"mode": False}  
+    def activate_edit():
+        editing["mode"] = True
+        update_ui()
+    def confirm_edit():
+        new_title = title_input.value.strip()
+        if new_title:
+            rename_chat(chat_id, new_title)
+        editing["mode"] = False
+        update_ui()
+    def update_ui():
+        container.clear()
+        if editing["mode"]:
+            with container:
+                with RawRow().classes("max-w-[900px] w-full bg-surface p-2 rounded-full gap-2"):
+                    nonlocal title_input
+                    title_input = Input(value=title).classes("bg-secondary w-full rounded-full").props("rounded")
+                    Button(config={"icon": "check"}, on_click=confirm_edit).classes(
+                        "bg-green-500 text-white shadow-md hover:shadow-lg"
+                    )
+        else:
+            with container:
+                with RawRow().classes("max-w-[900px] w-full bg-surface p-2 rounded-full gap-2 items-center"):
+                    Label(title).classes("w-full text-lg font-medium")
+                    Button(config={"icon": "edit"}, on_click=activate_edit).classes(
+                        "bg-blue-500 text-white shadow-md hover:shadow-lg"
+                    )
+    with ui.page_sticky('top-left', x_offset=20, y_offset=20) as container:
+        title_input = None
+        update_ui()
+
+def ChatArea(chat_id: str):
+    chats = read_chats()
+    chat = chats.get(chat_id, {})
+    with ui.scroll_area().classes(
+        "w-full h-[93vh] bg-chat-bg"
+    ) as scroller:
+        with RawCol().classes("w-full h-fit bg-transparent pt-[70px] pb-[70px] gap-3") as container:
+            messages = chat.get('chat', [])
+            for m in messages:
+                role, msg = list(m.items())[0]
+                message(msg, ai=role == 'ASSISTANT')
+            scroller.scroll_to(percent=100, axis='vertical')
+    return container, scroller
+
+def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, scroller:ui.scroll_area|None = None):
+    stop_flag = {"stop": False}  # shared flag for stopping streaming
+
+    def append_message(role, text):
+        m, _ = message(text, role == 'ASSISTANT')
+        m.move(container)
+        container.update()
+        scroller.scroll_to(percent=100, axis='vertical')
+        return _
+
+    async def send():
+        nonlocal stop_flag
+        try:
+            msg = textarea.value.strip()
+            if not msg: 
+                return
+            
+            write_message(chat_id, user_msg=msg)
+            textarea.value = ''
+            textarea.update()
+
+            append_message('USER', msg)
+            stp_btn.set_visibility(True)
+            snd_btn.set_visibility(False)
+
+            last_container = append_message('ASSISTANT', '')
+            last_text = ''
+
+            def token_Callback(token):
+                nonlocal last_text
+                if stop_flag["stop"]:
+                    return
+                last_text += str(token)
+                last_container.set_content(last_text
+                    .replace("\\[", "$$").replace("\\]", "$$")
+                    .replace("\\(", "$").replace("\\)", "$"))
+
+            if assistant:
+                stop_flag["stop"] = False
+                try:
+                    await assistant(msg, token_Callback, stop_flag=stop_flag, box=last_container)
+                except Exception as e:
+                    last_text += f"\n[Stopped]: {str(e)}"
+                    last_container.set_content(last_text)
+                write_message(chat_id, assistant_msg=last_text)
+                scroller.scroll_to(percent=100, axis='vertical')
+        finally:
+            stp_btn.set_visibility(False)
+            snd_btn.set_visibility(True)
+
+    def stop_stream():
+        stop_flag["stop"] = True
+        Notify("AI Response Stopped", type="warning")
+        stp_btn.set_visibility(False)
+        snd_btn.set_visibility(True)
+
+    # --- UI Layout ---
+    with ui.page_sticky('bottom', y_offset=30, expand=True):
+        with RawRow().classes(
+            """
+            relative max-w-[900px] w-full bg-surface p-2 rounded-xl
+            shadow-lg transition-all duration-300
+            focus-within:shadow-[0_0_30px_rgba(34,211,238,0.35)]
+            """
+        ):
+            with RawCol().classes(
+                "w-full max-h-[30vh] overflow-y-auto pr-14"
+            ):
+                textarea = TextArea(
+                    autogrow=True,
+                    flexible=True
+                ).classes(
+                    """
+                    bg-secondary rounded-lg
+                    focus:outline-none
+                    focus:ring-0
+                    """
+                )
+            with RawCol().classes(
+                "h-[43px] absolute bottom-2 right-2 py-0.5 pb-0.5 pr-0.5"
+            ):
+                # Stop button
+                stp_btn = Button(
+                    config=dict(icon='stop'),
+                    on_click=stop_stream,
+                    color='negative'
+                ).classes(
+                    """
+                    text-white h-full w-full
+                    shadow-md hover:shadow-lg
+                    transition-all duration-200
+                    """
+                )
+
+                # Send button
+                snd_btn = Button(
+                    config=dict(icon='send'),
+                    on_click=send,
+                    color='user-msg'
+                ).classes(
+                    """
+                    text-white h-full w-full
+                    shadow-md hover:shadow-lg
+                    transition-all duration-200
+                    """
+                )
+                stp_btn.set_visibility(False)
+
+
+def CreateChatArea(chat_id: str, assistant=None):
+    """Create the entire chat area, including title, messages, and input box."""
+    container, scroller = ChatArea(chat_id)
+    TitleChat(chat_id)
+    UserChatBox(chat_id, assistant, container, scroller)
