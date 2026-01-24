@@ -34,13 +34,13 @@ async def page():
         loading.delete()
         return _
 
-    def openChat(id, models):
+    def openChat(id, models, lister):
         chat_area.clear()
         msgs = get_messages(id)
         if len(msgs) > 10:
             msgs = msgs[-10:]
         assistant = initialize_model_stream(**models, msgs=msgs)
-        with chat_area: CreateChatArea(id, assistant)
+        with chat_area: CreateChatArea(id, assistant, lister)
 
     def createChat():
         pass
@@ -48,5 +48,5 @@ async def page():
     await side_bar.Create_Side_Bar(createChat, openChat, LoadModel)
     chat_area = ui.element().classes("w-full h-full flex")
 
-app.on_disconnect(lambda: [app.shutdown(), exit()])
+# app.on_disconnect(lambda: [app.shutdown(), exit()])
 ui.run(reload=True, native=True)

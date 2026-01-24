@@ -8,7 +8,7 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None):
     tokenizer, model, tm = await loader() # type:ignore
     def open_chat(chat):
         if chat_opener: 
-            chat_opener(chat['id'], dict(model=model, tokenizer=tokenizer))
+            chat_opener(chat['id'], dict(model=model, tokenizer=tokenizer), ListChats)
     def ListChats(e=None):
         query = search.value.lower().strip() # type:ignore
         chats.clear()

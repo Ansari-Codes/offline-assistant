@@ -44,7 +44,7 @@ def message(msg, ai=False):
 
     return c, m
 
-def TitleChat(chat_id: str):
+def TitleChat(chat_id: str, lister):
     chats = read_chats()
     title = chats.get(chat_id, {}).get("title", "New Chat")
     editing = {"mode": False}  
@@ -52,29 +52,38 @@ def TitleChat(chat_id: str):
         editing["mode"] = True
         update_ui()
     def confirm_edit():
+        nonlocal title
         new_title = title_input.value.strip()
         if new_title:
             rename_chat(chat_id, new_title)
+        title = new_title
+        lister()
         editing["mode"] = False
         update_ui()
     def update_ui():
         container.clear()
         if editing["mode"]:
             with container:
-                with RawRow().classes("max-w-[900px] w-full bg-surface p-2 rounded-full gap-2"):
+                with RawRow().classes("max-w-[1000px] w-full bg-secondary p-2 rounded-full gap-2 border-2 border-[var(--q-primary)]"):
                     nonlocal title_input
-                    title_input = Input(value=title).classes("bg-secondary w-full rounded-full").props("rounded")
+                    title_input = Input(value=title).classes("bg-secondary flex flex-1 rounded-full").props("rounded")
                     Button(config={"icon": "check"}, on_click=confirm_edit).classes(
-                        "bg-green-500 text-white shadow-md hover:shadow-lg"
-                    )
+                        "bg-positive text-white p-1 text-xs"
+                    ).props('dense rounded')
         else:
             with container:
-                with RawRow().classes("max-w-[900px] w-full bg-surface p-2 rounded-full gap-2 items-center"):
-                    Label(title).classes("w-full text-lg font-medium")
+                with RawRow().classes("max-w-[1000px] group w-full bg-secondary p-2 px-3 rounded-full gap-2 items-center border-2 border-[var(--q-primary)]"):
+                    Label(title).classes("w-fit flex flex-1 text-lg font-medium")
                     Button(config={"icon": "edit"}, on_click=activate_edit).classes(
-                        "bg-blue-500 text-white shadow-md hover:shadow-lg"
+                        "bg-primary text-white p-1"
+                    ).props('dense rounded').classes(
+                        """
+                        opacity-0 group-hover:opacity-100
+                        transition-opacity duration-200
+                        text-xs
+                        """
                     )
-    with ui.page_sticky('top-left', x_offset=20, y_offset=20) as container:
+    with ui.page_sticky('top-left', x_offset=20, y_offset=20).classes("w-fit") as container:
         title_input = None
         update_ui()
 
@@ -86,13 +95,67 @@ def ChatArea(chat_id: str):
     ) as scroller:
         with RawCol().classes("w-full h-fit bg-transparent pt-[70px] pb-[70px] gap-3") as container:
             messages = chat.get('chat', [])
+            nol = None
+            if not messages:
+                nol = Html("""
+                        <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            gap:10px;
+                            padding:40px 20px;
+                            text-align:center;
+                        ">
+                            <div style="
+                                font-size:64px;
+                                animation: float 2.5s ease-in-out infinite;
+                            ">
+                                💬
+                            </div>
+
+                            <div style="
+                                font-size:22px;
+                                font-weight:700;
+                                color: var(--q-primary)
+                            ">
+                                No messages yet
+                            </div>
+
+                            <div style="
+                                font-size:15px;
+                                color:var(--q-accent);
+                                max-width:320px;
+                            ">
+                                Start the conversation
+                                Ask anything, I’m ready to help you think, build, and explore.
+                            </div>
+
+                            <div style="
+                                margin-top:10px;
+                                font-size:14px;
+                                color:#22d3ee;
+                                opacity:0.9;
+                            ">
+                                Type below and press send
+                            </div>
+                        </div>
+
+                        <style>
+                        @keyframes float {
+                            0%   { transform: translateY(0px); }
+                            50%  { transform: translateY(-8px); }
+                            100% { transform: translateY(0px); }
+                        }
+                        </style>
+                        """)
             for m in messages:
                 role, msg = list(m.items())[0]
                 message(msg, ai=role == 'ASSISTANT')
             scroller.scroll_to(percent=100, axis='vertical')
-    return container, scroller
+    return container, scroller, nol
 
-def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, scroller:ui.scroll_area|None = None):
+def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, scroller:ui.scroll_area|None = None, nol=None):
     stop_flag = {"stop": False}  # shared flag for stopping streaming
 
     def append_message(role, text):
@@ -100,6 +163,7 @@ def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, sc
         m.move(container)
         container.update()
         scroller.scroll_to(percent=100, axis='vertical')
+        if nol and (not nol.is_deleted): nol.delete()
         return _
 
     async def send():
@@ -201,8 +265,8 @@ def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, sc
                 stp_btn.set_visibility(False)
 
 
-def CreateChatArea(chat_id: str, assistant=None):
+def CreateChatArea(chat_id: str, assistant=None, lister=None):
     """Create the entire chat area, including title, messages, and input box."""
-    container, scroller = ChatArea(chat_id)
-    TitleChat(chat_id)
-    UserChatBox(chat_id, assistant, container, scroller)
+    container, scroller, nol = ChatArea(chat_id)
+    TitleChat(chat_id, lister)
+    UserChatBox(chat_id, assistant, container, scroller, nol)
