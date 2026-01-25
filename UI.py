@@ -108,6 +108,9 @@ def TextArea(
     ta.classes("bg-inp rounded-sm").props(f'input-class="{inp_cls}" input-props="{inp_prp}" input-style="{inp_sty}"')
     return ta
 
+def Slider(min:float|int = 0, max:float|int=100, step:float|int=1, onchange=lambda e=None:()):
+    return ui.slider(min=min, max=max, step=step, on_change=onchange)
+
 def CheckBox(
         text:str = "",
         value:bool = False,

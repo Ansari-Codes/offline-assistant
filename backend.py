@@ -22,6 +22,14 @@ def read_config() -> dict:
             json.dump({"max_new_tokens": 1000, "temperature": 0.7, "top_p":0.9}, f)
         return {"max_new_tokens": 1000, "temperature": 0.7, "top_p":0.9}
 
+def write_config(config: dict) -> None:
+    try:
+        with open(CONFIG_FILE, 'x', encoding='utf-8') as f:
+            json.dump(config, f)
+    except FileExistsError:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f)
+
 def create_chat(title: str = '') -> dict:
     chats = read_chats()
     now = datetime.now().isoformat()

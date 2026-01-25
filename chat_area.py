@@ -204,55 +204,57 @@ def UserChatBox(chat_id: str, assistant=None, container:ui.element|None=None, sc
 
     # --- UI Layout ---
     with ui.page_sticky('bottom', y_offset=30, expand=True):
-        with RawRow().classes(
-            """
-            relative max-w-[900px] w-full bg-surface p-2 rounded-xl
-            shadow-lg transition-all duration-300
-            focus-within:shadow-[0_0_30px_rgba(34,211,238,0.35)]
-            """
-        ):
-            with RawCol().classes(
-                "w-full max-h-[30vh] overflow-y-auto pr-14"
+        with RawCol().classes("max-w-[900px] w-full h-full justify-center items-center content-center"):
+            with RawRow().classes(
+                """
+                relative max-w-[900px] w-full bg-surface p-2 rounded-xl
+                shadow-lg transition-all duration-300
+                focus-within:shadow-[0_0_30px_rgba(34,211,238,0.35)]
+                """
             ):
-                textarea = TextArea(
-                    autogrow=True,
-                    flexible=True
-                ).classes(
-                    """
-                    bg-secondary rounded-lg
-                    focus:outline-none
-                    focus:ring-0
-                    """
-                )
-            with RawCol().classes(
-                "h-[43px] absolute bottom-2 right-2 py-0.5 pb-0.5 pr-0.5"
-            ):
-                # Stop button
-                stp_btn = Button(
-                    config=dict(icon='stop'),
-                    on_click=stop_stream,
-                    color='negative'
-                ).classes(
-                    """
-                    text-white h-full w-full
-                    shadow-md hover:shadow-lg
-                    transition-all duration-200
-                    """
-                )
+                with RawCol().classes(
+                    "w-full max-h-[30vh] overflow-y-auto pr-14"
+                ):
+                    textarea = TextArea(
+                        autogrow=True,
+                        flexible=True
+                    ).classes(
+                        """
+                        bg-secondary rounded-lg
+                        focus:outline-none
+                        focus:ring-0
+                        """
+                    )
+                with RawCol().classes(
+                    "h-[43px] absolute bottom-2 right-2 py-0.5 pb-0.5 pr-0.5"
+                ):
+                    # Stop button
+                    stp_btn = Button(
+                        config=dict(icon='stop'),
+                        on_click=stop_stream,
+                        color='negative'
+                    ).classes(
+                        """
+                        text-white h-full w-full
+                        shadow-md hover:shadow-lg
+                        transition-all duration-200
+                        """
+                    )
 
-                # Send button
-                snd_btn = Button(
-                    config=dict(icon='send'),
-                    on_click=send,
-                    color='user-msg'
-                ).classes(
-                    """
-                    text-white h-full w-full
-                    shadow-md hover:shadow-lg
-                    transition-all duration-200
-                    """
-                )
-                stp_btn.set_visibility(False)
+                    # Send button
+                    snd_btn = Button(
+                        config=dict(icon='send'),
+                        on_click=send,
+                        color='user-msg'
+                    ).classes(
+                        """
+                        text-white h-full w-full
+                        shadow-md hover:shadow-lg
+                        transition-all duration-200
+                        """
+                    )
+                    stp_btn.set_visibility(False)
+            Label("You have to verify AI responses — they can assist, but may not always be fully accurate.").classes("mt-2 text-xs font-light text-gray-500")
 
 
 def CreateChatArea(chat_id: str, assistant=None, lister=None):

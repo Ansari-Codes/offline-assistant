@@ -1,7 +1,7 @@
 from UI import Drawer, Button, Col, RawCol, Row, Card, Input, openLink, AddSpace, Label, confirm
 from backend import all_chats, delete_chat
 import env
-import utils
+import dialogs
 
 async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None, empty=None):
     drawer = Drawer().classes("bg-surface")
@@ -56,7 +56,7 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None, empt
             ListChats()
             Button(
                 'Settings',
-                on_click=lambda: print("Settings"),
+                on_click=lambda: dialogs.createSettings().open(),
                 config={'icon': 'settings'}
             ).classes("w-full mb-2")
             Button(
