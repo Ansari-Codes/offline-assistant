@@ -39,16 +39,16 @@ processing = lambda label: f"""<div style="
 
 def _load_model_sync():
     start = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_id,
-    )
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        device_map="auto",
-        max_memory={"cpu": "16GB"},  # adjust based on your RAM
-        torch_dtype=torch.float32,
-    )
-    return tokenizer, model, time.time() - start
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     model_id,
+    # )
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     model_id,
+    #     device_map="auto",
+    #     max_memory={"cpu": "16GB"},  # adjust based on your RAM
+    #     torch_dtype=torch.float32,
+    # )
+    return "tokenizer", "model", time.time() - start
 
 async def loadModel():
     return await asyncio.to_thread(_load_model_sync)

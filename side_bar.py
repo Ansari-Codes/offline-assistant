@@ -12,7 +12,7 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None, empt
         if chat_creator: chat_creator(dict(model=model, tokenizer=tokenizer), ListChats)
         ListChats()
     def del_chat(c):
-        confirm(f"Are you sure you want to delete the chat `{c['title']}` forever? This is not reversible!",
+        confirm(f"Are you sure to delete the chat `{c['title']}` forever? This is not reversible!",
             on_yes=lambda: [delete_chat(c['id']), ListChats(), empty() if empty else None])
     def ListChats(e=None):
         query = search.value.lower().strip()  # type:ignore

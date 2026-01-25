@@ -1,4 +1,4 @@
-from UI import Dialog, confirm, Label, Button, Input, Select, Card, Row, Col, Slider
+from UI import Dialog, confirm, Label, Button, Input, Select, Card, Row, Col, Slider, Icon, AddSpace
 from backend import write_config, read_config
 
 def createSettings():
@@ -7,7 +7,12 @@ def createSettings():
     config = read_config()
     edited = config.copy()
     with settings_dialog, Card().classes("w-full h-fit max-w-[90vw] max-h-[90vh] sm:max-w-[50vw] sm:max-h-[50vh]"):
-        with Col().classes("w-full"):
+        with Row().classes("w-full"):
+            Icon("settings", "lg", "primary")
+            Label("Settings").classes("text-2xl font-bold text-primary")
+            AddSpace()
+            Button("Help", config={"icon":"help"})
+        with Col().classes("w-full mt-4 gap-2"):
             with Row().classes("w-full"):
                 Label("Temperature").classes("w-fit font-bold text-lg")
                 Slider(0.1, 2, 0.1, onchange=lambda e: edited.update({"temperature": float(e.value)})).props('label-always').classes("flex flex-1").set_value(config.get("temperature"))
