@@ -39,11 +39,11 @@ def message(msg, ai=False):
                     # .replace("\n", "<br>"),
                     ,
                     extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
-                ).classes("p-0 m-0")
+                ).classes("p-0 m-0 q-markdown")
 
     return c, card, m
 
-def TitleChat(chat_id: str, lister, drawer):
+def TitleChat(chat_id: str, lister, drawer=None):
     chats = read_chats()
     title = chats.get(chat_id, {}).get("title", "New Chat")
     editing = {"mode": False}  

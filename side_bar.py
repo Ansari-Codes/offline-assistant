@@ -62,8 +62,8 @@ async def Create_Side_Bar(chat_creator=None, chat_opener=None, loader=None, empt
                 config={'icon': 'settings'}
             ).classes("w-full mb-2")
             Button(
-                'About',
-                on_click=lambda:(),
+                'Docs',
+                on_click=dialogs.docs,
                 config={'icon':'info'}
             ).classes("w-full mb-2")
     return drawer, ListChats, create_chat

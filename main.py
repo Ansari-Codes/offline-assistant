@@ -5,6 +5,7 @@ from ai import initialize_model_stream, loadModel
 from utils import Loading
 from backend import get_messages, create_chat
 from UI import Dialog, Icon, Label, Card, RawCol, Row, Col, Button
+import dialogs
 
 @ui.page('/')
 async def page():
@@ -59,7 +60,7 @@ async def page():
                         Label("Your AI assistant is ready and waiting.").classes("text-base opacity-90 text-center")
                         with Row():
                             Button("New Chat", on_click=creator, color='accent')
-                            Button("Read Docs", on_click=lambda: print("Open docs clicked"), color='accent')
+                            Button("Read Docs", on_click=dialogs.docs, color='accent')
 
     def openChat(id, models, lister):
         chat_area.clear()
