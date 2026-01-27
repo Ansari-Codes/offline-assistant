@@ -1,3 +1,4 @@
+![logo](https://github.com/Ansari-Codes/offline-assistant/blob/main/images/logo.PNG?raw=true)
 # 🤖 Qwen On Desktop (QOD)
 
 This software was created with one question in mind: **"Can we create an offline chatbot utility?"**
