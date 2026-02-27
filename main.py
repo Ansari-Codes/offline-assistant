@@ -82,4 +82,4 @@ async def page():
 app.on_disconnect(lambda: [app.shutdown(), exit()])
 try: port = get_free_port()
 except: port = 8080
-ui.run(reload=False, port=port)
+ui.run(reload=False, port=port, native=True)
