@@ -20,12 +20,6 @@ So, I used:
 
    * Provides a **modern, lightweight UI** for the model.
 
-## Developer
-
-I am **Muhammad Abubakar Siddique Ansari**, passionate about **Data Science and AI**. I love creating utilities and solving problems.
-
-I am currently (2026) a **1st Year ICS student at KIPS College**, Punjab - Pakistan. You can learn more about me at my portfolio: [Portfolio](https://ansari-codes.github.io/portfolio).
-
 ## Setup
 
 ##### You should have python-3.9 or latest. Development was done using python-3.10.
