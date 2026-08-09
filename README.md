@@ -1,3 +1,5 @@
+
+
 # 🤖 Qwen On Desktop (QOD)
 
 ![preview](https://github.com/Ansari-Codes/offline-assistant/blob/main/images/Capture3.PNG?raw=true)
@@ -90,6 +92,10 @@ You can tweak parameters to get outputs **exactly the way you like**. The adjust
 
   * Short (50–100) → quick answers
   * Long (200–500) → detailed explanations or creative writing
+
+* **`custom_instructions`**: Additional system prompt text to guide the AI's behavior.
+
+  * Leave empty for default settings, or specify rules like "Always answer in bullet points" or "Act as a Python expert."
 
 ### Recommended Settings for Different Cases
 
